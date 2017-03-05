@@ -7,10 +7,10 @@ class JupyterFileSearchExtension(IPythonHandler):
     def __init__(self, *args):
         super(JupyterFileSearchExtension, self).__init__(*args)
         self.working_dir = os.path.abspath('.')
-        self.config      = {
-            'ignore_extensions': ['.pyc', '.png', 'jpg', '.jpeg', '.log'],
-            'ignore_names': [],
-            'ignore_folders': []
+        self.search_config = {
+            'ignore_extensions': { '.pyc', '.png', 'jpg', '.jpeg', '.log' },
+            'ignore_names': set(),
+            'ignore_folders': set()
         }
 
         config_file = os.path.join(self.working_dir, 'filesearch.config.json')
@@ -18,28 +18,28 @@ class JupyterFileSearchExtension(IPythonHandler):
         if os.path.exists(config_file):
             with open(config_file, 'rb') as f:
                 config = ujson.loads(f.read())
+            self.search_config.update(config)
 
-        self.config.update(config)
-        assert len(set(self.config.keys()).difference({ 'ignore_folders', 'ignore_extensions', 'ignore_names' })) == 0, 'Invalid configuration file'
-        self.config['ignore_extensions'] = set(self.config['ignore_extensions'])
-        self.config['ignore_folders'] = set([os.path.abspath(x) for x in self.config['ignore_folders']])
-        self.config['ignore_names'] = set(self.config['ignore_names'])
+        assert len(set(self.search_config.keys()).difference({ 'ignore_folders', 'ignore_extensions', 'ignore_names' })) == 0, 'Invalid configuration file'
+        self.search_config['ignore_extensions'] = set(self.search_config['ignore_extensions'])
+        self.search_config['ignore_folders'] = set([os.path.abspath(x) for x in self.search_config['ignore_folders']])
+        self.search_config['ignore_names'] = set(self.search_config['ignore_names'])
 
     def should_ignore_name(self, name):
         if name.startswith('.'):
             return True
 
         ext = name[name.rfind('.'):]
-        if ext in self.config['ignore_extensions']:
+        if ext in self.search_config['ignore_extensions']:
             return True
 
-        if name in self.config['ignore_names']:
+        if name in self.search_config['ignore_names']:
             return True
 
         return False
 
     def should_ignore_folder(self, dpath):
-        return dpath in self.config['ignore_folders']
+        return dpath in self.search_config['ignore_folders']
 
     def set_default_headers(self):
         super(JupyterFileSearchExtension, self).set_default_headers()
@@ -51,7 +51,7 @@ class JupyterFileSearchExtension(IPythonHandler):
         for dirpath, dirnames, filenames in os.walk(self.working_dir):
             i = 0
             while i < len(dirnames):
-                dpath = os.path.abspath(os.path.join(dirpath, dirnames))
+                dpath = os.path.abspath(os.path.join(dirpath, dirnames[i]))
                 if self.should_ignore_name(dirnames[i]) or self.should_ignore_folder(dpath):
                     del dirnames[i]
                 else:
@@ -67,7 +67,7 @@ class JupyterFileSearchExtension(IPythonHandler):
                     del filenames[i]
                 else:
                     files.append({
-                        'path': os.path.abspath(os.path.join(dirpath, fname)).replace(self.working_dir, ''),
+                        'path': os.path.abspath(os.path.join(dirpath, filenames[i])).replace(self.working_dir, ''),
                         'type': 'file' 
                     })
                     i += 1
