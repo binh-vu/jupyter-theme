@@ -75,7 +75,7 @@ class App extends Component {
 
     if (newQuery.length > 1) {
       results = fuzzy.filter(newQuery, this.state.structures, {
-        pre: '<b>', post: '</b>', extract: (el) => el.path
+        pre: '<b>', post: '</b>', extract: (el) => el.path.replace(/_/g, ' ').replace(/\./g, ' ')
       });
     }
 
