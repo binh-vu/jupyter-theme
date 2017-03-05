@@ -1,8 +1,17 @@
+#ipython_notebook{padding-top:10px!important}#save_widget{padding-top:5px!important}#file-search-app{margin-top:5px;position:relative;min-width:450px;z-index:1024}#file-search{background-color:#293340;border-color:#fff}#file-search-result{margin-left:2px;margin-top:5px;position:absolute;width:100%;max-height:700px;overflow-y:scroll}#file-search-result .list-group-item{border:none;background-color:#323a48;overflow:auto;padding:15px}#file-search-result .list-group-item:hover{border:none;background-color:#293340}#file-search-result .list-group-item-heading{color:#fff}#file-search-result .list-group-item-result{float:left;width:15%;padding-right:15px;padding-top:5px;font-size:15pt;font-weight:700;text-align:center;color:#cdd2e9}#file-search-result .list-group-item-file-name{float:right;width:85%}#file-search-result .list-group-item-text{overflow-wrap:break-word;color:#cdd2e9}#file-search-result .list-group-item-text b{color:#fff}
+/*# sourceMappingURL=main.6a05d0ba.css.map*/
+
 @font-face {
  font-family: 'Source Code Pro';
  font-weight: normal;
  font-style: normal;
  src: local('Source Code Pro'), url('fonts/source-code-pro.otf') format('opentype');
+}
+@font-face {
+ font-family: 'Source Code Pro';
+ font-weight: bold;
+ font-style: normal;
+ src: local('Source Code Pro'), url('fonts/source-code-pro-semibold.ttf') format('truetype');
 }
 @font-face {
  font-family: 'Source Code Pro';
@@ -15,6 +24,12 @@
  font-weight: normal;
  font-style: normal;
  src: local('Source Sans Pro'), url('fonts/source-sans-pro-regular.ttf') format('truetype');
+}
+@font-face {
+ font-family: 'Source Sans Pro';
+ font-weight: bold;
+ font-style: normal;
+ src: local('Source Sans Pro'), url('fonts/source-sans-pro-semibold.ttf') format('truetype');
 }
 @font-face {
  font-family: 'Fira Code';
