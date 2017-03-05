@@ -8,9 +8,9 @@ class JupyterFileSearchExtension(IPythonHandler):
         super(JupyterFileSearchExtension, self).__init__(*args)
         self.working_dir = os.path.abspath('.')
         self.config      = {
-            'ignore_extensions': { '.pyc', '.png', 'jpg', '.jpeg', '.log' },
-            'ignore_names': set(),
-            'ignore_folders': set()
+            'ignore_extensions': ['.pyc', '.png', 'jpg', '.jpeg', '.log'],
+            'ignore_names': [],
+            'ignore_folders': []
         }
 
         config_file = os.path.join(self.working_dir, 'filesearch.config.json')
@@ -21,7 +21,9 @@ class JupyterFileSearchExtension(IPythonHandler):
 
         self.config.update(config)
         assert len(set(self.config.keys()).difference({ 'ignore_folders', 'ignore_extensions', 'ignore_names' })) == 0, 'Invalid configuration file'
+        self.config['ignore_extensions'] = set(self.config['ignore_extensions'])
         self.config['ignore_folders'] = set([os.path.abspath(x) for x in self.config['ignore_folders']])
+        self.config['ignore_names'] = set(self.config['ignore_names'])
 
     def should_ignore_name(self, name):
         if name.startswith('.'):
