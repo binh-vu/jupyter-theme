@@ -6,18 +6,34 @@ class JupyterFileSearchExtension(IPythonHandler):
 
     def __init__(self, *args):
         super(JupyterFileSearchExtension, self).__init__(*args)
-        self.working_dir       = os.path.abspath('.')
-        self.ignore_extensions = { '.pyc', '.png', 'jpg', '.jpeg', '.log' }
+        self.working_dir = os.path.abspath('.')
+        self.config      = {
+            'ignore_extensions': { '.pyc', '.png', 'jpg', '.jpeg', '.log' },
+            'ignore_folders': set()
+        }
+
+        config_file = os.path.join(self.working_dir, 'filesearch.config.json')
+
+        if os.path.exists(config_file):
+            with open(config_file, 'rb') as f:
+                config = ujson.loads(f.read())
+
+        self.config.update(config)
+        assert len(set(self.config.keys()).difference({ 'ignore_folders', 'ignore_extensions'})) == 0, 'Invalid configuration file'
+        self.config['ignore_folders'] = set([os.path.abspath(x) for x in self.config['ignore_folders']])
 
     def should_ignore(self, name):
         if name.startswith('.'):
             return True
 
         ext = name[name.rfind('.'):]
-        if ext in self.ignore_extensions:
+        if ext in self.config['ignore_extensions']:
             return True
 
         return False
+
+    def should_ignore_folder(self, dpath):
+        return dpath in self.config['ignore_folders']
 
     def set_default_headers(self):
         super(JupyterFileSearchExtension, self).set_default_headers()
@@ -29,9 +45,14 @@ class JupyterFileSearchExtension(IPythonHandler):
         for dirpath, dirnames, filenames in os.walk(self.working_dir):
             i = 0
             while i < len(dirnames):
-                if self.should_ignore(dirnames[i]):
+                dpath = os.path.abspath(os.path.join(dirpath, dirnames))
+                if self.should_ignore(dirnames[i]) or self.should_ignore_folder(dpath):
                     del dirnames[i]
                 else:
+                    files.append({
+                        'path': dpath.replace(self.working_dir, ''),
+                        'type': 'dir' 
+                    })
                     i += 1
 
             i = 0
@@ -39,18 +60,11 @@ class JupyterFileSearchExtension(IPythonHandler):
                 if self.should_ignore(filenames[i]):
                     del filenames[i]
                 else:
+                    files.append({
+                        'path': os.path.abspath(os.path.join(dirpath, fname)).replace(self.working_dir, ''),
+                        'type': 'file' 
+                    })
                     i += 1
-
-            for dname in dirnames:
-                files.append({
-                    'path': os.path.join(dirpath, dname).replace(self.working_dir, ''),
-                    'type': 'dir' 
-                })
-            for fname in filenames:
-                files.append({
-                    'path': os.path.join(dirpath, fname).replace(self.working_dir, ''),
-                    'type': 'file' 
-                })
 
         self.finish(ujson.dumps(files))
 
