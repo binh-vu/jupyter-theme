@@ -1,11 +1,10 @@
-
 <!DOCTYPE HTML>
 <html>
 
 <head>
     <meta charset="utf-8">
 
-    <title>Home</title>
+    <title>Jupyter Notebook</title>
     <link rel="shortcut icon" type="image/x-icon" href="/static/base/images/favicon.ico?v=97c6417ed01bdc0ae3ef32ae4894fd03">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <link rel="stylesheet" href="/static/components/jquery-ui/themes/smoothness/jquery-ui.min.css?v=9b2c8d3489227115310662a343fce11c" type="text/css" />
@@ -13,8 +12,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     
+
+
+<script type="text/javascript" src="/static/components/MathJax/MathJax.js?config=TeX-AMS_HTML-full,Safe&delayStartupUntil=configured" charset="utf-8"></script>
+
+<script type="text/javascript">
+// MathJax disabled, set as null to distingish from *missing* MathJax,
+// where it will be undefined, and should prompt a dialog later.
+window.mathjax_url = "/static/components/MathJax/MathJax.js";
+</script>
+
+<link rel="stylesheet" href="/static/components/bootstrap-tour/build/css/bootstrap-tour.min.css?v=d0b3c2fce6056a2ddd5a4513762a94c4" type="text/css" />
+<link rel="stylesheet" href="/static/components/codemirror/lib/codemirror.css?v=f25e9a9159e54b423b5a8dc4b1ab5c6e">
+
+
     <link rel="stylesheet" href="/static/style/style.min.css?v=974839a888beb55bbba87883fafd90fa" type="text/css"/>
     
+
+<link rel="stylesheet" href="/static/notebook/css/override.css?v=e6f18013b8771987812e992b38ec3318" type="text/css" />
+<link rel="stylesheet" href=""  id='kernel-css'                             type="text/css" />
+
+
     <link rel="stylesheet" href="/custom/custom.css" type="text/css" />
     <script src="/static/components/es6-promise/promise.min.js?v=f004a16cb856e0ff11781d01ec5ca8fe" type="text/javascript" charset="utf-8"></script>
     <script src="/static/components/requirejs/require.js?v=6da8be361b9ee26c5e721e76c6d4afce" type="text/javascript" charset="utf-8"></script>
@@ -38,11 +56,11 @@
             termjs: 'components/xterm.js/dist/xterm',
             typeahead: 'components/jquery-typeahead/dist/jquery.typeahead.min',
           },
-    map: { // for backward compatibility
-      "*": {
-    "jqueryui": "jquery-ui",
-      }
-    },
+	  map: { // for backward compatibility
+	    "*": {
+		"jqueryui": "jquery-ui",
+	    }
+	  },
           shim: {
             typeahead: {
               deps: ["jquery"],
@@ -112,16 +130,16 @@
 
 </head>
 
-<body class=""
+<body class="notebook_app "
  
 
-  
-    data-jupyter-api-token="20f01c06ac16895aa8a1a0a092f0a319b1270634d5839e1f"
+
   
  
 data-base-url="/"
-data-notebook-path=""
-data-terminals-available="True"
+data-ws-url=""
+data-notebook-name="00_dbpedia_parsing.ipynb"
+data-notebook-path="problems/NER/notebook/00_dbpedia_parsing.ipynb"
 
 
 >
@@ -152,171 +170,326 @@ data-terminals-available="True"
   
 
   
+
+
+<span id="save_widget" class="pull-left save_widget">
+    <span id="notebook_name" class="filename"></span>
+    <span class="checkpoint_status"></span>
+    <span class="autosave_status"></span>
+</span>
+
+<span id="kernel_logo_widget">
   
+  <img class="current_kernel_logo" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"/>
+  
+</span>
+
+
   </div>
   <div class="header-bar"></div>
 
   
-  
+<div id="menubar-container" class="container">
+<div id="menubar">
+    <div id="menus" class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-default navbar-btn navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+              <i class="fa fa-bars"></i>
+              <span class="navbar-text">Menu</span>
+            </button>
+            <p id="kernel_indicator" class="navbar-text indicator_area">
+              <span class="kernel_indicator_name">Kernel</span>
+              <i id="kernel_indicator_icon"></i>
+            </p>
+            <i id="readonly-indicator" class="navbar-text" title='This notebook is read-only'>
+                <span class="fa-stack">
+                    <i class="fa fa-save fa-stack-1x"></i>
+                    <i class="fa fa-ban fa-stack-2x text-danger"></i>
+                </span>
+            </i>
+            <i id="modal_indicator" class="navbar-text"></i>
+            <span id="notification_area"></span>
+            <div class="navbar-collapse collapse">
+              <ul class="nav navbar-nav">
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">File</a>
+                    <ul id="file_menu" class="dropdown-menu">
+                        <li id="new_notebook" class="dropdown-submenu">
+                            <a href="#">New Notebook</a>
+                            <ul class="dropdown-menu" id="menu-new-notebook-submenu"></ul>
+                        </li>
+                        <li id="open_notebook"
+                            title="Opens a new window with the Dashboard view">
+                            <a href="#">Open...</a></li>
+                        <!-- <hr/> -->
+                        <li class="divider"></li>
+                        <li id="copy_notebook"
+                            title="Open a copy of this notebook's contents and start a new kernel">
+                            <a href="#">Make a Copy...</a></li>
+                        <li id="rename_notebook"><a href="#">Rename...</a></li>
+                        <li id="save_checkpoint"><a href="#">Save and Checkpoint</a></li>
+                        <!-- <hr/> -->
+                        <li class="divider"></li>
+                        <li id="restore_checkpoint" class="dropdown-submenu"><a href="#">Revert to Checkpoint</a>
+                          <ul class="dropdown-menu">
+                            <li><a href="#"></a></li>
+                            <li><a href="#"></a></li>
+                            <li><a href="#"></a></li>
+                            <li><a href="#"></a></li>
+                            <li><a href="#"></a></li>
+                          </ul>
+                        </li>
+                        <li class="divider"></li>
+                        <li id="print_preview"><a href="#">Print Preview</a></li>
+                        <li class="dropdown-submenu"><a href="#">Download as</a>
+                            <ul class="dropdown-menu">
+                                <li id="download_ipynb"><a href="#">Notebook (.ipynb)</a></li>
+                                <li id="download_script"><a href="#">Script</a></li>
+                                <li id="download_html"><a href="#">HTML (.html)</a></li>
+                                <li id="download_markdown"><a href="#">Markdown (.md)</a></li>
+                                <li id="download_rst"><a href="#">reST (.rst)</a></li>
+                                <li id="download_pdf"><a href="#">PDF via LaTeX (.pdf)</a></li>
+                            </ul>
+                        </li>
+                        <li class="divider"></li>
+                        <li id="trust_notebook"
+                            title="Trust the output of this notebook">
+                            <a href="#" >Trust Notebook</a></li>
+                        <li class="divider"></li>
+                        <li id="kill_and_exit"
+                            title="Shutdown this notebook's kernel, and close this window">
+                            <a href="#" >Close and Halt</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit</a>
+                    <ul id="edit_menu" class="dropdown-menu">
+                        <li id="cut_cell"><a href="#">Cut Cells</a></li>
+                        <li id="copy_cell"><a href="#">Copy Cells</a></li>
+                        <li id="paste_cell_above" class="disabled"><a href="#">Paste Cells Above</a></li>
+                        <li id="paste_cell_below" class="disabled"><a href="#">Paste Cells Below</a></li>
+                        <li id="paste_cell_replace" class="disabled"><a href="#">Paste Cells &amp; Replace</a></li>
+                        <li id="delete_cell"><a href="#">Delete Cells</a></li>
+                        <li id="undelete_cell" class="disabled"><a href="#">Undo Delete Cells</a></li>
+                        <li class="divider"></li>
+                        <li id="split_cell"><a href="#">Split Cell</a></li>
+                        <li id="merge_cell_above"><a href="#">Merge Cell Above</a></li>
+                        <li id="merge_cell_below"><a href="#">Merge Cell Below</a></li>
+                        <li class="divider"></li>
+                        <li id="move_cell_up"><a href="#">Move Cell Up</a></li>
+                        <li id="move_cell_down"><a href="#">Move Cell Down</a></li>
+                        <li class="divider"></li>
+                        <li id="edit_nb_metadata"><a href="#">Edit Notebook Metadata</a></li>
+                        <li class="divider"></li>
+                        <li id="find_and_replace"><a href="#"> Find and Replace </a></li>
+                    </ul>
+                </li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">View</a>
+                    <ul id="view_menu" class="dropdown-menu">
+                        <li id="toggle_header"
+                            title="Show/Hide the logo and notebook title (above menu bar)">
+                            <a href="#">Toggle Header</a></li>
+                        <li id="toggle_toolbar"
+                            title="Show/Hide the action icons (below menu bar)">
+                            <a href="#">Toggle Toolbar</a></li>
+                        <li id="menu-cell-toolbar" class="dropdown-submenu">
+                            <a href="#">Cell Toolbar</a>
+                            <ul class="dropdown-menu" id="menu-cell-toolbar-submenu"></ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Insert</a>
+                    <ul id="insert_menu" class="dropdown-menu">
+                        <li id="insert_cell_above"
+                            title="Insert an empty Code cell above the currently active cell">
+                            <a href="#">Insert Cell Above</a></li>
+                        <li id="insert_cell_below"
+                            title="Insert an empty Code cell below the currently active cell">
+                            <a href="#">Insert Cell Below</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Cell</a>
+                    <ul id="cell_menu" class="dropdown-menu">
+                        <li id="run_cell" title="Run this cell, and move cursor to the next one">
+                            <a href="#">Run Cells</a></li>
+                        <li id="run_cell_select_below" title="Run this cell, select below">
+                            <a href="#">Run Cells and Select Below</a></li>
+                        <li id="run_cell_insert_below" title="Run this cell, insert below">
+                            <a href="#">Run Cells and Insert Below</a></li>
+                        <li id="run_all_cells" title="Run all cells in the notebook">
+                            <a href="#">Run All</a></li>
+                        <li id="run_all_cells_above" title="Run all cells above (but not including) this cell">
+                            <a href="#">Run All Above</a></li>
+                        <li id="run_all_cells_below" title="Run this cell and all cells below it">
+                            <a href="#">Run All Below</a></li>
+                        <li class="divider"></li>
+                        <li id="change_cell_type" class="dropdown-submenu"
+                            title="All cells in the notebook have a cell type. By default, new cells are created as 'Code' cells">
+                            <a href="#">Cell Type</a>
+                            <ul class="dropdown-menu">
+                              <li id="to_code"
+                                  title="Contents will be sent to the kernel for execution, and output will display in the footer of cell">
+                                  <a href="#">Code</a></li>
+                              <li id="to_markdown"
+                                  title="Contents will be rendered as HTML and serve as explanatory text">
+                                  <a href="#">Markdown</a></li>
+                              <li id="to_raw"
+                                  title="Contents will pass through nbconvert unmodified">
+                                  <a href="#">Raw NBConvert</a></li>
+                            </ul>
+                        </li>
+                        <li class="divider"></li>
+                        <li id="current_outputs" class="dropdown-submenu"><a href="#">Current Outputs</a>
+                            <ul class="dropdown-menu">
+                                <li id="toggle_current_output"
+                                    title="Hide/Show the output of the current cell">
+                                    <a href="#">Toggle</a>
+                                </li>
+                                <li id="toggle_current_output_scroll"
+                                    title="Scroll the output of the current cell">
+                                    <a href="#">Toggle Scrolling</a>
+                                </li>
+                                <li id="clear_current_output"
+                                    title="Clear the output of the current cell">
+                                    <a href="#">Clear</a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li id="all_outputs" class="dropdown-submenu"><a href="#">All Output</a>
+                            <ul class="dropdown-menu">
+                                <li id="toggle_all_output"
+                                    title="Hide/Show the output of all cells">
+                                    <a href="#">Toggle</a>
+                                </li>
+                                <li id="toggle_all_output_scroll"
+                                    title="Scroll the output of all cells">
+                                    <a href="#">Toggle Scrolling</a>
+                                </li>
+                                <li id="clear_all_output"
+                                    title="Clear the output of all cells">
+                                    <a href="#">Clear</a>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Kernel</a>
+                    <ul id="kernel_menu" class="dropdown-menu">
+                        <li id="int_kernel"
+                            title="Send KeyboardInterrupt (CTRL-C) to the Kernel">
+                            <a href="#">Interrupt</a>
+                        </li>
+                        <li id="restart_kernel"
+                            title="Restart the Kernel">
+                            <a href="#">Restart</a>
+                        </li>
+                        <li id="restart_clear_output"
+                            title="Restart the Kernel and clear all output">
+                            <a href="#">Restart &amp; Clear Output</a>
+                        </li>
+                        <li id="restart_run_all"
+                            title="Restart the Kernel and re-run the notebook">
+                            <a href="#">Restart &amp; Run All</a>
+                        </li>
+                        <li id="reconnect_kernel"
+                            title="Reconnect to the Kernel">
+                            <a href="#">Reconnect</a>
+                        </li>
+                        <li class="divider"></li>
+                        <li id="menu-change-kernel" class="dropdown-submenu">
+                            <a href="#">Change kernel</a>
+                            <ul class="dropdown-menu" id="menu-change-kernel-submenu"></ul>
+                        </li>
+                    </ul>
+                </li>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Help</a>
+                    <ul  id="help_menu" class="dropdown-menu">
+                        
+                        <li id="notebook_tour" title="A quick tour of the notebook user interface"><a href="#">User Interface Tour</a></li>
+                        <li id="keyboard_shortcuts" title="Opens a tooltip with all keyboard shortcuts"><a href="#">Keyboard Shortcuts</a></li>
+                        <li class="divider"></li>
+                        
+
+                        
+                            
+                                <li><a rel="noreferrer" href="http://nbviewer.ipython.org/github/ipython/ipython/blob/3.x/examples/Notebook/Index.ipynb" target="_blank" title="Opens in a new window">
+                                
+                                    <i class="fa fa-external-link menu-icon pull-right"></i>
+                                
+
+                                Notebook Help
+                                </a></li>
+                            
+                                <li><a rel="noreferrer" href="https://help.github.com/articles/markdown-basics/" target="_blank" title="Opens in a new window">
+                                
+                                    <i class="fa fa-external-link menu-icon pull-right"></i>
+                                
+
+                                Markdown
+                                </a></li>
+                            
+                            
+                        
+                        <li class="divider"></li>
+                        <li title="About Jupyter Notebook"><a id="notebook_about" href="#">About</a></li>
+                        
+                    </ul>
+                </li>
+              </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="maintoolbar" class="navbar">
+  <div class="toolbar-inner navbar-inner navbar-nobg">
+    <div id="maintoolbar-container" class="container"></div>
+  </div>
+</div>
+</div>
+
+<div class="lower-header-bar"></div>
+
 </div>
 
 <div id="site">
 
 
-  <div id="ipython-main-app" class="container">
-    <div id="tab_content" class="tabbable">
-      <ul id="tabs" class="nav nav-tabs">
-        <li class="active"><a href="#notebooks" data-toggle="tab">Files</a></li>
-        <li><a href="#running" data-toggle="tab">Running</a></li>
-        <li><a href="#clusters" data-toggle="tab" class="clusters_tab_link" >Clusters</a></li>
-      </ul>
-      <div class="tab-content">
-        <div id="notebooks" class="tab-pane active">
-          <div id="notebook_toolbar" class="row">
-            <div class="col-sm-8 no-padding">
-              <div class="dynamic-instructions">
-                Select items to perform actions on them.
-              </div>
-              <div class="dynamic-buttons">
-                  <button title="Duplicate selected" class="duplicate-button btn btn-default btn-xs">Duplicate</button>
-                  <button title="Rename selected" class="rename-button btn btn-default btn-xs">Rename</button>
-                  <button title="Shutdown selected notebook(s)" class="shutdown-button btn btn-default btn-xs btn-warning">Shutdown</button>
-                  <button title="Delete selected" class="delete-button btn btn-default btn-xs btn-danger"><i class="fa fa-trash"></i></button>
-              </div>
-            </div>
-            <div class="col-sm-4 no-padding tree-buttons">
-              <div class="pull-right">
-                <form id='alternate_upload'  class='alternate_upload'>
-                  <span id="notebook_list_info">
-                  <span class="btn btn-xs btn-default btn-upload">
-                  <input  title="Click to browse for a file to upload." type="file" name="datafile" class="fileinput" multiple='multiple'>
-                  Upload
-                  </span>
-                  </span>
-                </form>
-                <div id="new-buttons" class="btn-group">
-                  <button class="dropdown-toggle btn btn-default btn-xs" data-toggle="dropdown">
-                  <span>New</span>
-                  <span class="caret"></span>
-                  </button>
-                  <ul id="new-menu" class="dropdown-menu">
-                    <li role="presentation" id="new-file">
-                      <a role="menuitem" tabindex="-1" href="#">Text File</a>
-                    </li>
-                    <li role="presentation" id="new-folder">
-                      <a role="menuitem" tabindex="-1" href="#">Folder</a>
-                    </li>
-                    
-                    <li role="presentation" id="new-terminal">
-                      <a role="menuitem" tabindex="-1" href="#">Terminal</a>
-                    </li>
-                    
-                    <li role="presentation" class="divider"></li>
-                    <li role="presentation" class="dropdown-header" id="notebook-kernels">Notebooks</li>
-                  </ul>
-                </div>
-                <div class="btn-group">
-                    <button id="refresh_notebook_list" title="Refresh notebook list" class="btn btn-default btn-xs"><i class="fa fa-refresh"></i></button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="notebook_list">
-            <div id="notebook_list_header" class="row list_header">
-              <div class="btn-group dropdown" id="tree-selector">
-                <button title="Select All / None" type="button" class="btn btn-default btn-xs" id="button-select-all">
-                  <input type="checkbox" class="pull-left tree-selector" id="select-all"><span id="counter-select-all">&nbsp;</span></input>
-                </button>
-                <button title="Select..." class="btn btn-default btn-xs dropdown-toggle" type="button" id="tree-selector-btn" data-toggle="dropdown" aria-expanded="true">
-                  <span class="caret"></span>
-                  <span class="sr-only">Toggle Dropdown</span>
-                </button>
-                <ul id='selector-menu' class="dropdown-menu" role="menu" aria-labelledby="tree-selector-btn">
-                  <li role="presentation"><a id="select-folders" role="menuitem" tabindex="-1" href="#" title="Select All Folders"><i class="menu_icon folder_icon icon-fixed-width"></i> Folders</a></li>
-                  <li role="presentation"><a id="select-notebooks" role="menuitem" tabindex="-1" href="#" title="Select All Notebooks"><i class="menu_icon notebook_icon icon-fixed-width"></i> All Notebooks</a></li>
-                  <li role="presentation"><a id="select-running-notebooks" role="menuitem" tabindex="-1" href="#" title="Select Running Notebooks"><i class="menu_icon running_notebook_icon icon-fixed-width"></i> Running</a></li>
-                  <li role="presentation"><a id="select-files" role="menuitem" tabindex="-1" href="#" title="Select All Files"><i class="menu_icon file_icon icon-fixed-width"></i> Files</a></li>
-                </ul>
-              </div>
-              <div id="project_name">
-                <ul class="breadcrumb">
-                  <li><a href="/tree"><i class="fa fa-home"></i></a></li>
-                
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="running" class="tab-pane">
-          <div id="running_toolbar" class="row">
-            <div class="col-sm-8 no-padding">
-              <span id="running_list_info">Currently running Jupyter processes</span>
-            </div>
-            <div class="col-sm-4 no-padding tree-buttons">
-              <span id="running_buttons" class="pull-right">
-              <button id="refresh_running_list" title="Refresh running list" class="btn btn-default btn-xs"><i class="fa fa-refresh"></i></button>
-              </span>
-            </div>
-          </div>
-          <div class="panel-group" id="accordion" >
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <a data-toggle="collapse" data-target="#collapseOne" href="#">
-                  Terminals
-                </a>
-              </div>
-              <div id="collapseOne" class=" collapse in">
-                <div class="panel-body">
-                  <div id="terminal_list">
-                    <div id="terminal_list_header" class="row list_placeholder">
-                    
-                      <div> There are no terminals running. </div>
-                    
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="panel panel-default">
-              <div class="panel-heading">
-                <a data-toggle="collapse" data-target="#collapseTwo" href="#">
-                  Notebooks
-                </a>
-              </div>
-              <div id="collapseTwo" class=" collapse in">
-                <div class="panel-body">
-                  <div id="running_list">
-                    <div id="running_list_placeholder" class="row list_placeholder">
-                      <div> There are no notebooks running. </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div id="clusters" class="tab-pane">
-          Clusters tab is now provided by IPython parallel.
-          See <a href="https://github.com/ipython/ipyparallel">IPython parallel</a> for installation details.
-        </div>
-      </div><!-- class:tab-content -->
-    </div><!-- id:tab_content --> 
-  </div><!-- ipython-main-app  -->
+<div id="ipython-main-app">
+    <div id="notebook_panel">
+        <div id="notebook"></div>
+        <div id='tooltip' class='ipython_tooltip' style='display:none'></div>
+    </div>
+</div>
+
 
 
 </div>
 
 
 
+<div id="pager">
+    <div id="pager-contents">
+        <div id="pager-container" class="container"></div>
+    </div>
+    <div id='pager-button-area'></div>
+</div>
 
 
-    
 
 
 
-    <script src="/static/tree/js/main.min.js?v=320479929860ce657c3a4449582c3b84" type="text/javascript" charset="utf-8"></script>
+
+<script type="text/javascript">
+    sys_info = {"os_name": "posix", "platform": "Darwin-15.6.0-x86_64-i386-64bit", "default_encoding": "UTF-8", "notebook_path": "/usr/local/lib/python2.7/site-packages/notebook", "sys_platform": "darwin", "sys_version": "2.7.9 (default, Feb 27 2016, 21:09:32) \n[GCC 4.2.1 Compatible Apple LLVM 7.0.2 (clang-700.1.81)]", "notebook_version": "4.4.1", "commit_source": "repository", "commit_hash": "abca593", "sys_executable": "/usr/local/opt/python/bin/python2.7"};
+</script>
+
+<script src="/static/components/text-encoding/lib/encoding.js?v=d5bb0fc9ffeff7d98a69bb83daa51052" charset="utf-8"></script>
+
+
+    <script src="/static/notebook/js/main.min.js?v=51e81021865aa858b5b5af6e931a27c5" type="text/javascript" charset="utf-8"></script>
+
 
 
 
 </body>
+
 </html>

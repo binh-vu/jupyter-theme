@@ -17,7 +17,49 @@ class App extends Component {
     }
   }
 
+  focusSearch() {
+    this.inputElement.focus();
+  }
+
   componentDidMount() {
+    // react using synthetic event which mean that to stop keyboard event reach
+    // notebook keyboard handler we have to stop it here.
+    this.inputElement.onkeydown = (e) => {
+      e.stopPropagation();
+      this.keyPress(e);
+    }
+
+    // bind the ctrl+o keyboard to trigger the search
+    var keyshortcuts = { 
+      ctrlKey: 17, ctrlPressing: false,
+      shiftKey: 16, shiftPressing: false,
+      oKey: 79 
+    }
+    if (window.navigator.platform.indexOf('Mac') != -1) {
+      keyshortcuts.ctrlKey = 91;
+    }
+
+    window.$(window.document).keydown((e) => {
+      if (e.keyCode == keyshortcuts.ctrlKey) {
+        keyshortcuts.ctrlPressing = true;
+      }
+      if (e.keyCode == keyshortcuts.shiftKey) {
+        keyshortcuts.shiftPressing = true;
+      }
+
+      if (e.keyCode == keyshortcuts.oKey && keyshortcuts.ctrlPressing && keyshortcuts.shiftPressing) {
+        this.focusSearch();
+      }
+    }).keyup((e) => {
+      if (e.keyCode == keyshortcuts.ctrlKey) {
+        keyshortcuts.ctrlPressing = false;
+      }
+      if (e.keyCode == keyshortcuts.shiftKey) {
+        keyshortcuts.shiftPressing = false;
+      }
+    });
+
+    // update the project structure
     getProjectStructure()
       .then((structures) => {
         this.setState({ structures: structures });
@@ -67,6 +109,14 @@ class App extends Component {
 
       return;
     }
+
+    if (e.key === 'Escape') {
+      window.$(this.inputElement).blur();
+      this.setState({
+        query: '',
+        searchResults: [],
+      });
+    }
   }
 
   search(e) {
@@ -106,8 +156,8 @@ class App extends Component {
     return (
       <div id="file-search-app">
         <input id='file-search' className='form-control' placeholder='Enter file name...' 
-               value={this.state.query} onChange={this.search.bind(this)} 
-               onKeyPress={this.keyPress.bind(this)}
+               ref={(input) => { this.inputElement = input; }}
+               value={this.state.query} onChange={this.search.bind(this)}
                />
         <div id='file-search-result' className='list-group'>
           {resultElements}
