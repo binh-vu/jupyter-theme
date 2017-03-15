@@ -7,6 +7,7 @@ class App extends Component {
 
   constructor(props) {
     super(props);
+    this.timeout = null;
     this.state = {
       structures: [],
       query: '',
@@ -20,6 +21,10 @@ class App extends Component {
 
   focusSearch() {
     this.inputElement.focus();
+  }
+
+  searchAnalyzer(text) {
+    return text.replace(/_|\.|\//g, ' ');
   }
 
   componentDidMount() {
@@ -63,6 +68,10 @@ class App extends Component {
     // update the project structure
     getProjectStructure()
       .then((structures) => {
+        structures.forEach((record) => {
+          record.tokens = this.searchAnalyzer(record.path);
+        });
+
         this.setState({ structures: structures });
         this.regularUpdateProjectStructure(this.state.settings.interval);
       });
@@ -72,6 +81,9 @@ class App extends Component {
     this.updateProjectStructureTimer = setTimeout(() => {
       getProjectStructure()
         .then((structures) => {
+          structures.forEach((record) => {
+            record.tokens = this.searchAnalyzer(record.path);
+          });
           this.setState({ structures: structures });
           
           this.regularUpdateProjectStructure(this.state.settings.interval);
@@ -135,20 +147,56 @@ class App extends Component {
   }
 
   search(e) {
-    var newQuery = e.target.value,
-        results  = [];
+    this.setState({ query: e.target.value });
+    this.query = e.target.value;
 
-    if (newQuery.length > 1) {
-      results = fuzzy.filter(newQuery.replace(/_/g, ' ').replace(/\./g, ' '), this.state.structures, {
-        pre: '<b>', post: '</b>', extract: (el) => el.path.replace(/_/g, ' ').replace(/\./g, ' ')
-      });
+    if (this.timeout) {
+      window.clearTimeout(this.timeout);
     }
+    this.timeout = setTimeout(() => {
+      if (this.query.length <= 1) return;
 
-    this.setState({
-      query: newQuery,
-      searchResults: results,
-      searchResultActive: 0
-    });
+      var results = fuzzy.filter(this.searchAnalyzer(this.query), this.state.structures, {
+          pre: '<$$>', post: '</$$>', extract: (el) => el.tokens
+        })
+        .slice(0, 20)
+        .map((r) => {
+          // convert annotated analyzed string to annotated original string
+          var pres = r.string.split('<$$>');
+          var raws = [{ text: pres[0], shouldWrap: false }];
+
+          for (let i = 1; i < pres.length; i++) {
+            var pos = pres[i].split('</$$>');
+            
+            if (raws[raws.length - 1].shouldWrap) {
+              raws[raws.length - 1].text += pos[0];
+            } else {
+              raws.push({ text: pos[0], shouldWrap: true });
+            }
+
+            if (pos[1].length > 0) {
+              raws.push({ text: pos[1], shouldWrap: false });
+            }
+          }
+
+          var offset = 0, string = '';
+          for (let raw of raws) {
+            if (raw.shouldWrap) {
+              string += '<b>' + r.original.path.substring(offset, offset + raw.text.length) + '</b>';
+            } else {
+              string += r.original.path.substring(offset, offset + raw.text.length);
+            }
+
+            offset += raw.text.length;
+          }
+          return { string: string, score: r.score, original: r.original };
+        });
+
+      this.setState({
+        searchResults: results,
+        searchResultActive: 0
+      });
+    }, 50); // trigger search after 50 ms
   }
 
   render() {
@@ -160,8 +208,8 @@ class App extends Component {
           className = 'list-group-item' + (this.state.searchResultActive == i ? ' active' : '');
 
       return <a key={e.original.path} className={className} href={href} target={target}>
-        <div className='list-group-item-result'>
-          <span>{e.score}</span>
+        <div className={'list-group-item-score ' + (e.original.type == 'dir' ? 'item-dir' : 'item-file')}>
+          <span title={e.original.type}>{e.score}</span>
         </div>
         <div className='list-group-item-file-name'>
           <h4 className='list-group-item-heading'>{e.original.name}</h4>

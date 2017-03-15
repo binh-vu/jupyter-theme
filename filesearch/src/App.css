@@ -40,7 +40,7 @@
 	background-color: #293340;
 }
 
-#file-search-result .list-group-item-result {
+#file-search-result .list-group-item-score {
 	float: left;
 	width: 15%;
 	padding-right: 15px;
@@ -49,6 +49,12 @@
 	font-weight: bold;
 	text-align: center;
 	color: #cdd2e9;
+}
+#file-search-result .list-group-item-score.item-dir span {
+	border-bottom: 5px solid #ffec8e;
+}
+#file-search-result .list-group-item-score.item-file span {
+	border-bottom: 5px solid #4cb2ff;
 }
 
 #file-search-result .list-group-item-file-name {
