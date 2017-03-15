@@ -36,8 +36,7 @@
 	padding: 15px;
 }
 
-#file-search-result .list-group-item:hover {
-	border: none;
+#file-search-result .list-group-item.active {
 	background-color: #293340;
 }
 

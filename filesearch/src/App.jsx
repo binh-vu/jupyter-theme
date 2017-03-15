@@ -11,6 +11,7 @@ class App extends Component {
       structures: [],
       query: '',
       searchResults: [],
+      searchResultActive: 0,
       settings: {
         interval: 5000
       }
@@ -96,7 +97,7 @@ class App extends Component {
   keyPress(e) {
     if (e.key === 'Enter') {
       if (this.state.searchResults.length === 0) return;
-      var res = this.state.searchResults[0],
+      var res = this.state.searchResults[this.state.searchResultActive],
           href = this.getFileOrFolderPath(res.original);
 
       if (this.isNotebookURI(window.location.pathname)) {
@@ -117,6 +118,20 @@ class App extends Component {
         searchResults: [],
       });
     }
+
+    if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      this.setState({
+        searchResultActive: Math.max(this.state.searchResultActive - 1, 0)
+      });
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      this.setState({
+        searchResultActive: Math.min(this.state.searchResultActive + 1, this.state.searchResults.length - 1)
+      });
+    }
   }
 
   search(e) {
@@ -124,25 +139,27 @@ class App extends Component {
         results  = [];
 
     if (newQuery.length > 1) {
-      results = fuzzy.filter(newQuery, this.state.structures, {
+      results = fuzzy.filter(newQuery.replace(/_/g, ' ').replace(/\./g, ' '), this.state.structures, {
         pre: '<b>', post: '</b>', extract: (el) => el.path.replace(/_/g, ' ').replace(/\./g, ' ')
       });
     }
 
     this.setState({
       query: newQuery,
-      searchResults: results
+      searchResults: results,
+      searchResultActive: 0
     });
   }
 
   render() {
     var shouldOpenNewPage = this.isNotebookURI(window.location.pathname);
 
-    var resultElements = this.state.searchResults.map((e) => {
+    var resultElements = this.state.searchResults.map((e, i) => {
       var href   = this.getFileOrFolderPath(e.original),
-          target = shouldOpenNewPage ? '_blank' : '_self';
+          target = shouldOpenNewPage ? '_blank' : '_self',
+          className = 'list-group-item' + (this.state.searchResultActive == i ? ' active' : '');
 
-      return <a key={e.original.path} className='list-group-item' href={href} target={target}>
+      return <a key={e.original.path} className={className} href={href} target={target}>
         <div className='list-group-item-result'>
           <span>{e.score}</span>
         </div>
