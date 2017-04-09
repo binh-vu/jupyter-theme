@@ -23,6 +23,14 @@ class App extends Component {
     this.inputElement.focus();
   }
 
+  cleanAndUnfocusSearch() {
+    window.$(this.inputElement).blur();
+    this.setState({
+      query: '',
+      searchResults: [],
+    });
+  }
+
   searchAnalyzer(text) {
     return text.replace(/_|\.|\//g, ' ');
   }
@@ -39,7 +47,7 @@ class App extends Component {
     var keyshortcuts = { 
       ctrlKey: 17, ctrlPressing: false,
       shiftKey: 16, shiftPressing: false,
-      oKey: 79 
+      oKey: 79, escKey: 27
     }
     if (window.navigator.platform.indexOf('Mac') != -1) {
       keyshortcuts.ctrlKey = 91;
@@ -54,6 +62,7 @@ class App extends Component {
       }
 
       if (e.keyCode == keyshortcuts.oKey && keyshortcuts.ctrlPressing && keyshortcuts.shiftPressing) {
+        e.preventDefault();
         this.focusSearch();
       }
     }).keyup((e) => {
@@ -62,6 +71,9 @@ class App extends Component {
       }
       if (e.keyCode == keyshortcuts.shiftKey) {
         keyshortcuts.shiftPressing = false;
+      }
+      if (e.keyCode == keyshortcuts.escKey) {
+        this.cleanAndUnfocusSearch();
       }
     });
 
@@ -124,11 +136,7 @@ class App extends Component {
     }
 
     if (e.key === 'Escape') {
-      window.$(this.inputElement).blur();
-      this.setState({
-        query: '',
-        searchResults: [],
-      });
+      this.cleanAndUnfocusSearch();
     }
 
     if (e.key === 'ArrowUp') {
